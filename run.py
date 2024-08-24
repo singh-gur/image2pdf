@@ -6,11 +6,21 @@ from os.path import basename, dirname, exists, join, realpath
 from img2pdf import convert  # type: ignore
 
 
-def get_images(img_dir: str, real_path: bool = True):
+def get_images(img_dir: str, real_path: bool = True, test_pic: bool = False, skip_hidden: bool = True):
     for file in sorted(listdir(img_dir)):
+        if skip_hidden and file.startswith("."):
+            continue
         file_type = get_file_mime_type(file)
         if file_type and file_type in ["image/jpeg", "image/png"]:
-            yield realpath(join(img_dir, file)) if real_path else file
+            out_filepath = realpath(join(img_dir, file)) if real_path else file
+            if test_pic:
+                try:
+                    convert(out_filepath)
+                    yield out_filepath
+                except:
+                    print(f"Unable to convert: {out_filepath}")
+            else:
+                yield out_filepath
 
 
 def get_file_mime_type(file_path: str) -> str | None:
@@ -31,12 +41,15 @@ def run():
         print(f"Directory {directory} does not exist")
         return
 
-    real_path = realpath(directory)
-    dir_name = basename(real_path)
-    base_path = dirname(real_path)
+    try:
+        real_path = realpath(directory)
+        dir_name = basename(real_path)
+        base_path = dirname(real_path)
 
-    with open(join(base_path, f"{dir_name}.pdf"), "wb") as pdf_file:
-        pdf_file.write(convert(list(get_images(real_path))))
+        with open(join(base_path, f"{dir_name}.pdf"), "wb") as pdf_file:
+            pdf_file.write(convert(list(get_images(real_path, test_pic=False, skip_hidden=True))))
+    except Exception as e:
+        print(f"Unable to parse {directory}, \nError: {e}")
 
 
 if __name__ == "__main__":
