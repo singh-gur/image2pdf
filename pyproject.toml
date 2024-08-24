@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "image2pdf"
+version = "0.1.0"
+description = ""
+authors = ["Gurbakhshish Singh <gurbakhshish.s@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+img2pdf = "^0.5.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
